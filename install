@@ -58,5 +58,6 @@ echo -e "Installed Successfully \n"
 if [[ $path != "/usr/local/bin" ]]; then
   echo "Make sure your PATH environment variable includes '$path' for tgpt to be accessible globally."
 fi
-
-echo -e "Run 64CS078 -h for help"
+echo -e "OS project by 22CS064 ||  22CS078 "
+echo -e "PROJECT teacher BUSHRA NAAZ"
+echo -e "Run tgpt -h for help"
