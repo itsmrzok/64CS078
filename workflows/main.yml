@@ -1,0 +1,35 @@
+name: Build Go Project and Create Release (OpenAI)
+
+on:
+  push:
+    branches: [release]
+
+permissions:
+  contents: write
+
+jobs:
+  build_and_release:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: "^1.22.1"
+
+      - name: Build for Linux (OpenAI)
+        run: |
+          go build -ldflags="-s -w" -o tgpt-linux-amd64
+
+      - name: Upload Artifacts
+        uses: softprops/action-gh-release@v1
+        with:
+          files: tgpt-linux-amd64
+          token: ${{ secrets.GITHUB_TOKEN }}
+          draft: true
+          tag_name: v
+          name: tgpt
+          body_path: ${{ github.workspace }}-CHANGELOG.txt  # Assuming changelog is still relevant
+
+# Removed comments and steps related to other providers, Snapcraft, and additional builds.
