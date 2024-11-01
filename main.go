@@ -71,38 +71,12 @@ func main() {
 	logFile = flag.String("log", "", "Filepath to log conversation to.")
 	shouldExecuteCommand = flag.Bool(("y"), false, "Instantly execute the shell command")
 
-	isQuiet := flag.Bool("q", false, "Gives response back without loading animation")
-	flag.BoolVar(isQuiet, "quiet", false, "Gives response back without loading animation")
-
-	isWhole := flag.Bool("w", false, "Gives response back as a whole text")
-	flag.BoolVar(isWhole, "whole", false, "Gives response back as a whole text")
-
-	isCode := flag.Bool("c", false, "Generate Code. (Experimental)")
-	flag.BoolVar(isCode, "code", false, "Generate Code. (Experimental)")
-
-	isShell := flag.Bool("s", false, "Generate and Execute shell commands.")
-	flag.BoolVar(isShell, "shell", false, "Generate and Execute shell commands.")
-
-	isImage := flag.Bool("img", false, "Generate images from text")
-	flag.BoolVar(isImage, "image", false, "Generate images from text")
-
-	isInteractive := flag.Bool("i", false, "Start normal interactive mode")
-	flag.BoolVar(isInteractive, "interactive", false, "Start normal interactive mode")
-
 	isMultiline := flag.Bool("m", false, "Start multi-line interactive mode")
 	flag.BoolVar(isMultiline, "multiline", false, "Start multi-line interactive mode")
 
 	isVersion := flag.Bool("v", false, "Gives response back as a whole text")
 	flag.BoolVar(isVersion, "version", false, "Gives response back as a whole text")
 
-	isHelp := flag.Bool("h", false, "Gives response back as a whole text")
-	flag.BoolVar(isHelp, "help", false, "Gives response back as a whole text")
-
-	isUpdate := flag.Bool("u", false, "Update program")
-	flag.BoolVar(isUpdate, "update", false, "Update program")
-
-	isChangelog := flag.Bool("cl", false, "See changelog of versions")
-	flag.BoolVar(isChangelog, "changelog", false, "See changelog of versions")
 
 	disableInputLimit := flag.Bool("disable-input-limit", false, "Disables the checking of 4000 character input limit")
 
@@ -158,125 +132,8 @@ func main() {
 
 		case *isVersion:
 			fmt.Println("tgpt", localVersion)
-		case *isChangelog:
-			getVersionHistory()
-		case *isWhole:
-			if len(prompt) > 1 {
-				trimmedPrompt := strings.TrimSpace(prompt)
-				if len(trimmedPrompt) < 1 {
-					fmt.Fprintln(os.Stderr, "You need to provide some text")
-					fmt.Fprintln(os.Stderr, `Example: tgpt -w "What is encryption?"`)
-					os.Exit(1)
-				}
-				getWholeText(*preprompt+trimmedPrompt+contextText+pipedInput, structs.ExtraOptions{DisableInputLimit: *disableInputLimit})
-			} else {
-				formattedInput := getFormattedInputStdin()
-				fmt.Println()
-				getWholeText(*preprompt+formattedInput+cleanPipedInput, structs.ExtraOptions{DisableInputLimit: *disableInputLimit})
-			}
-		case *isQuiet:
-			if len(prompt) > 1 {
-				trimmedPrompt := strings.TrimSpace(prompt)
-				if len(trimmedPrompt) < 1 {
-					fmt.Fprintln(os.Stderr, "You need to provide some text")
-					fmt.Fprintln(os.Stderr, `Example: tgpt -q "What is encryption?"`)
-					os.Exit(1)
-				}
-				getSilentText(*preprompt + trimmedPrompt + contextText + pipedInput, structs.ExtraOptions{DisableInputLimit: *disableInputLimit})
-			} else {
-				formattedInput := getFormattedInputStdin()
-				fmt.Println()
-				getSilentText(*preprompt + formattedInput + cleanPipedInput, structs.ExtraOptions{DisableInputLimit: *disableInputLimit})
-			}
-		case *isShell:
-			if len(prompt) > 1 {
-				go loading(&stopSpin)
-				trimmedPrompt := strings.TrimSpace(prompt)
-				if len(trimmedPrompt) < 1 {
-					fmt.Fprintln(os.Stderr, "You need to provide some text")
-					fmt.Fprintln(os.Stderr, `Example: tgpt -s "How to update system"`)
-					os.Exit(1)
-				}
-				shellCommand(*preprompt + trimmedPrompt + contextText + pipedInput)
-			} else {
-				fmt.Fprintln(os.Stderr, "You need to provide some text")
-				fmt.Fprintln(os.Stderr, `Example: tgpt -s "How to update system"`)
-				os.Exit(1)
-			}
-
-		case *isCode:
-			if len(prompt) > 1 {
-				trimmedPrompt := strings.TrimSpace(prompt)
-				if len(trimmedPrompt) < 1 {
-					fmt.Fprintln(os.Stderr, "You need to provide some text")
-					fmt.Fprintln(os.Stderr, `Example: tgpt -c "Hello world in Python"`)
-					os.Exit(1)
-				}
-				codeGenerate(*preprompt + trimmedPrompt + contextText + pipedInput)
-			} else {
-				fmt.Fprintln(os.Stderr, "You need to provide some text")
-				fmt.Fprintln(os.Stderr, `Example: tgpt -c "Hello world in Python"`)
-				os.Exit(1)
-			}
-		case *isUpdate:
-			update()
-		case *isInteractive:
-			/////////////////////
-			// Normal interactive
-			/////////////////////
-
-			bold.Print("Interactive mode started. Press Ctrl + C or type exit to quit.\n\n")
-
-			previousMessages := ""
-			threadID := utils.RandomString(36)
-			history := []string{}
-
-			for {
-				blue.Println("╭─ You")
-				input := Prompt.Input("╰─> ", historyCompleter,
-					Prompt.OptionHistory(history),
-					Prompt.OptionPrefixTextColor(Prompt.Blue),
-					Prompt.OptionAddKeyBind(Prompt.KeyBind{
-						Key: Prompt.ControlC,
-						Fn:  exit,
-					}),
-				)
-
-				if len(input) > 1 {
-					input = strings.TrimSpace(input)
-					if len(input) > 1 {
-						if input == "exit" {
-							bold.Println("Exiting...")
-							if runtime.GOOS != "windows" {
-								rawModeOff := exec.Command("stty", "-raw", "echo")
-								rawModeOff.Stdin = os.Stdin
-								_ = rawModeOff.Run()
-								rawModeOff.Wait()
-							}
-							os.Exit(0)
-						}
-						if len(*logFile) > 0 {
-							utils.LogToFile(input, "USER_QUERY", *logFile)
-						}
-						// Use preprompt for first message
-						if previousMessages == "" {
-							input = *preprompt + input
-						}
-						responseJson, responseTxt := getData(input, structs.Params{
-							PrevMessages: previousMessages,
-							ThreadID:     threadID,
-							Provider:     *provider,
-						}, structs.ExtraOptions{IsInteractive: true, DisableInputLimit: *disableInputLimit, IsNormal: true})
-						if len(*logFile) > 0 {
-							utils.LogToFile(responseTxt, "ASSISTANT_RESPONSE", *logFile)
-						}
-						previousMessages += responseJson
-						history = append(history, input)
-						lastResponse = responseTxt
-					}
-				}
-			}
-
+		
+		
 		case *isMultiline:
 			/////////////////////
 			// Multiline interactive
@@ -316,7 +173,8 @@ func main() {
 
 			}
 
-		case *isImage:
+		
+
 			if len(prompt) > 1 {
 				trimmedPrompt := strings.TrimSpace(prompt)
 				if len(trimmedPrompt) < 1 {
@@ -330,8 +188,6 @@ func main() {
 				fmt.Println()
 				generateImageBlackbox(*preprompt + formattedInput)
 			}
-		case *isHelp:
-			showHelpMessage()
 		default:
 			go loading(&stopSpin)
 			formattedInput := strings.TrimSpace(prompt)
@@ -477,7 +333,33 @@ func getFormattedInputStdin() (formattedInput string) {
 
 func showHelpMessage() {
 	boldBlue.Println(`Usage: tgpt [Flags] [Prompt]`)
-	
+
+	boldBlue.Println("\nFlags:")
+	fmt.Printf("%-50v Generate and Execute shell commands. (Experimental) \n", "-s, --shell")
+	fmt.Printf("%-50v Generate Code. (Experimental)\n", "-c, --code")
+	fmt.Printf("%-50v Gives response back without loading animation\n", "-q, --quiet")
+	fmt.Printf("%-50v Gives response back as a whole text\n", "-w, --whole")
+	fmt.Printf("%-50v Generate images from text\n", "-img, --image")
+	fmt.Printf("%-50v Set Provider. Detailed information has been provided below. (Env: AI_PROVIDER)\n", "--provider")
+
+	boldBlue.Println("\nSome additional options can be set. However not all options are supported by all providers. Not supported options will just be ignored.")
+	fmt.Printf("%-50v Set Model\n", "--model")
+	fmt.Printf("%-50v Set API Key\n", "--key")
+	fmt.Printf("%-50v Set OpenAI API endpoint url\n", "--url")
+	fmt.Printf("%-50v Set temperature\n", "--temperature")
+	fmt.Printf("%-50v Set top_p\n", "--top_p")
+	fmt.Printf("%-50v Set max response length\n", "--max_length")
+	fmt.Printf("%-50v Set filepath to log conversation to (For interactive modes)\n", "--log")
+	fmt.Printf("%-50v Set preprompt\n", "--preprompt")
+	fmt.Printf("%-50v Execute shell command without confirmation\n", "-y")
+
+	boldBlue.Println("\nOptions:")
+	fmt.Printf("%-50v Print version \n", "-v, --version")
+	fmt.Printf("%-50v Print help message \n", "-h, --help")
+	fmt.Printf("%-50v Start normal interactive mode \n", "-i, --interactive")
+	fmt.Printf("%-50v Start multi-line interactive mode \n", "-m, --multiline")
+	fmt.Printf("%-50v See changelog of versions \n", "-cl, --changelog")
+
 	if runtime.GOOS != "windows" {
 		fmt.Printf("%-50v Update program \n", "-u, --update")
 	}
@@ -491,7 +373,6 @@ func showHelpMessage() {
 
 	boldBlue.Println("\nExamples:")
 	fmt.Println(`tgpt "What is internet?"`)
-	fmt.Println(`cat install.sh | tgpt "Explain the code"`)
 }
 
 func historyCompleter(d Prompt.Document) []Prompt.Suggest {
