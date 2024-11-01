@@ -57,4 +57,4 @@ fi
 
 echo -e "OS project by 22CS064 || 22CS078"
 echo -e "PROJECT teacher BUSHRA NAAZ"
-echo -e "Run tgpt -h for help"
+echo -e "run tgpt " prompt "
