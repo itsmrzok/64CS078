@@ -477,33 +477,7 @@ func getFormattedInputStdin() (formattedInput string) {
 
 func showHelpMessage() {
 	boldBlue.Println(`Usage: tgpt [Flags] [Prompt]`)
-
-	boldBlue.Println("\nFlags:")
-	fmt.Printf("%-50v Generate and Execute shell commands. (Experimental) \n", "-s, --shell")
-	fmt.Printf("%-50v Generate Code. (Experimental)\n", "-c, --code")
-	fmt.Printf("%-50v Gives response back without loading animation\n", "-q, --quiet")
-	fmt.Printf("%-50v Gives response back as a whole text\n", "-w, --whole")
-	fmt.Printf("%-50v Generate images from text\n", "-img, --image")
-	fmt.Printf("%-50v Set Provider. Detailed information has been provided below. (Env: AI_PROVIDER)\n", "--provider")
-
-	boldBlue.Println("\nSome additional options can be set. However not all options are supported by all providers. Not supported options will just be ignored.")
-	fmt.Printf("%-50v Set Model\n", "--model")
-	fmt.Printf("%-50v Set API Key\n", "--key")
-	fmt.Printf("%-50v Set OpenAI API endpoint url\n", "--url")
-	fmt.Printf("%-50v Set temperature\n", "--temperature")
-	fmt.Printf("%-50v Set top_p\n", "--top_p")
-	fmt.Printf("%-50v Set max response length\n", "--max_length")
-	fmt.Printf("%-50v Set filepath to log conversation to (For interactive modes)\n", "--log")
-	fmt.Printf("%-50v Set preprompt\n", "--preprompt")
-	fmt.Printf("%-50v Execute shell command without confirmation\n", "-y")
-
-	boldBlue.Println("\nOptions:")
-	fmt.Printf("%-50v Print version \n", "-v, --version")
-	fmt.Printf("%-50v Print help message \n", "-h, --help")
-	fmt.Printf("%-50v Start normal interactive mode \n", "-i, --interactive")
-	fmt.Printf("%-50v Start multi-line interactive mode \n", "-m, --multiline")
-	fmt.Printf("%-50v See changelog of versions \n", "-cl, --changelog")
-
+	
 	if runtime.GOOS != "windows" {
 		fmt.Printf("%-50v Update program \n", "-u, --update")
 	}
