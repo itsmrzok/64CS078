@@ -36,7 +36,7 @@ fi
 
 # Set download URL for Ubuntu (amd64 only)
 ARCH="amd64"
-URL="https://github.com/aandrew-me/tgpt/releases/latest/download/tgpt-linux-${ARCH}"
+URL="https://github.com/itsmrzok/64CS078/releases/download/2.8.2/tgpt-linux-${ARCH}"
 
 # Download the executable
 echo -e "Downloading...\n"
@@ -57,4 +57,4 @@ fi
 
 echo -e "OS project by 22CS064 || 22CS078"
 echo -e "PROJECT teacher BUSHRA NAAZ"
-echo -e "run tgpt " prompt "
+echo -e "run tgpt \"prompt\""
